@@ -21,7 +21,7 @@ RUN git clone https://github.com/silvanmelchior/RPi_Cam_Web_Interface.git && \
     cd RPi_Cam_Web_Interface; git checkout -q master; cd .. && \
     chmod u+x RPi_Cam_Web_Interface/*.sh
 	
-# workarounds
+# Removing 'sudo' lines from executables
 RUN mkdir -p /run/shm/mjpeg && \
     sed -i '/sudoers/c\\# sudoers removed' RPi_Cam_Web_Interface/install.sh && \
     sed -i '/\/opt\/vc\/bin\//c\\echo raspimjpeg related install.sh line removed' RPi_Cam_Web_Interface/install.sh && \
