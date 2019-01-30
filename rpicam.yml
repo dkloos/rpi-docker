@@ -1,9 +1,0 @@
----
- - hosts: rpi-cam
-#   vars:
-#   tasks:
-   roles:
-     - ansible-rpi-docker
-     - { name: rpi-cam, tags: rpi-cam, becom: yes }
- 
- 

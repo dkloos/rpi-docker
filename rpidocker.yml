@@ -1,8 +1,0 @@
----
- - hosts: all
-#   vars:
-#   tasks:
-   roles:
-     - ansible-rpi-docker
-     - { name: rpi-docker-compose, tags: rpi-docker-compose, becom: yes }
-     - { name: docker-rpi-cam, tags: docker-rpi-cam; become: yes }:wq
