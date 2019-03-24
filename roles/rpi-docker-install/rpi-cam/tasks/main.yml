@@ -1,0 +1,29 @@
+---
+# tasks file for rpi-cam
+# General
+- name: Update all packages to the latest version
+  apt:
+    upgrade: dist
+  become: yes
+
+- name: Install pyhton
+  apt:
+    name: python python-pip
+    state: present
+
+# Installing Docker
+- name: adding docker group
+  group:
+    name: docker
+    state: present
+
+- name: Add the user pi and docker to the pi group
+  user:
+    name: "{{ item }}"
+    group: docker
+  with_items:
+    - pi
+    - docker
+- name: Install docker-compose
+  pip:
+    name: docker-compose

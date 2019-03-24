@@ -1,4 +1,0 @@
----
-- name: ansible-rpi-docker
-  src: https://github.com/ocrozo/ansible-docker-pi.git
-  version: origin/master

@@ -1,0 +1,7 @@
+---
+ - hosts: all
+#   vars:
+#   tasks:
+   roles:
+     - { name: rpi-docker-install, tags: rpi-docker-install, becom: yes }
+     - { name: rpi-docker-cam, tags: rpi-docker-cam }

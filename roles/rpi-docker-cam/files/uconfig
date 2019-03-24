@@ -1,0 +1,10 @@
+annotation Cam Garage: %D.%M.%Y_%h:%m:%s
+anno_background 0
+anno_text_size 45
+rotation 180
+video_width 1296
+video_height 972
+image_quality 100
+vector_preview 0
+motion_external 0
+
