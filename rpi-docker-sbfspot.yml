@@ -1,0 +1,4 @@
+---
+ - hosts: all
+   roles:
+     - { name: rpi-docker-sbfspot, tags: rpi-docker-sbfspot } 

@@ -1,0 +1,38 @@
+---
+- name: copy sbfspot configfiles
+  copy:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    owner: pi
+    mode: 0755
+  with_items:
+    - { src: 'SBFspot.cfg', dest: '/data/sbfspot/config/'}
+    - { src: 'SBFspotUpload.cfg', dest: '/data/sbfspot/config/'}
+
+- name: remove container
+  docker_container:
+    name: '{{ item }'
+    state: absent
+  with_items:
+    - sbfspot-collector
+    - sbfspot-uploader
+  ignore_errors: yes
+
+- name: run container sbfspot-collector
+  shell: " docker run -v /etc/localtime:/etc/localtime:ro -v /data/sbfspot:/var/smadata -v /data/sbfspot/config/SBFspot.cfg:/opt/sbfspot/SBFspot.cfg --net=host --privileged --name sbfspot-collector sbfspot-col"
+
+- name: Add to crontab
+  cron:
+    job: "docker start -a sbfspot-collector > /dev/null 2>&1"
+    name: 'sbfspot-collector'
+    minute: "*/5"
+    hour:   "5-23"
+    state: present
+
+- name: run container sbfspot-uploader
+  shell: "docker run -dt -v /etc/localtime:/etc/localtime:ro -v /data/sbfspot:/var/smadata -v /data/sbfspot/config/SBFspotUpload.cfg:/opt/sbfspot/SBFspotUpload.cfg --name sbfspot-uploader sbfspot-upl --restart=always"
+
+#- name: create nfs mount
+#  shell: docker volume create --driver local --opt type=nfs --opt o=addr=10.10.10.60,rw --opt device=:/Recordings nfscam
+#- name: Docker Run container
+#  shell: docker run -d --name=rpi-cam -p=80:80/tcp --mount source=nfscam,destination=/data --device=/dev/vchiq --device=/dev/vcsm rpi-cam-web --restart always

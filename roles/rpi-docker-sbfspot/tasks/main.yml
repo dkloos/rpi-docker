@@ -1,0 +1,125 @@
+---
+- name: copy dockerfiles Base Image
+  copy:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    owner: pi
+    mode: 0755
+  with_items:
+    - { src: 'build/Dockerfile', dest: '~/sbfspot-build/'}
+  tags:
+    - build
+
+- name: build docker Base Image
+  docker_image:
+    path: ~/sbfspot-build
+    name: sbfspot
+    state: present
+    debug: yes
+  tags:
+    - build
+
+- name: copy Dockerfiles for spbfspot-collector
+  copy:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    owner: pi
+    mode: 0755
+  with_items:
+    - { src: 'collector/Dockerfile', dest: '~/sbfspot-col-build/'}
+    - { src: 'collector/SBFspot.sh', dest: '~/sbfspot-col-build/'}
+  tags:
+    - build
+
+- name: build docker image spbfspot-col
+  docker_image:
+    path: ~/sbfspot-col-build
+    name: sbfspot-col
+    pull: no
+    state: present
+    debug: yes
+  tags:
+    - build
+
+- name: copy Dockerfiles for spbfspot-uploader
+  copy:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    owner: pi
+    mode: 0755
+  with_items:
+    - { src: 'uploader/Dockerfile', dest: '~/sbfspot-upl-build/'}
+    - { src: 'uploader/SBFspotUploadDaemon.sh', dest: '~/sbfspot-upl-build/'}
+  tags:
+    - build
+
+- name: build docker image spbfspot-upl
+  docker_image:
+    path: ~/sbfspot-upl-build
+    name: sbfspot-upl
+    pull: no
+    state: present
+    debug: yes
+  tags:
+    - build
+
+- name: create folders
+  become: yes
+  file:
+    path: '{{ item }}'
+    owner: pi
+    group: sbfspot
+    mode: 0775
+    state: directory
+  with_items:
+    - /data/sbfspot/logs
+    - /data/sbfspot/config
+  tags:
+    - run
+
+- name: copy sbfspot configfiles
+  become: yes
+  copy:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    owner: pi
+    group: sbfspot
+    mode: 0775
+  with_items:
+    - { src: 'SBFspot.cfg', dest: '/data/sbfspot/config/'}
+    - { src: 'SBFspotUpload.cfg', dest: '/data/sbfspot/config/'}
+  tags:
+    - run
+
+- name: remove container
+  docker_container:
+    name: '{{ item }}'
+    state: absent
+  with_items:
+    - sbfspot-collector
+    - sbfspot-collector-month
+    - sbfspot-uploader
+  ignore_errors: yes
+  tags:
+    - run
+
+- name: run container sbfspot-collector
+  shell: " docker run -v /etc/localtime:/etc/localtime:ro -v /data/sbfspot:/var/smadata -v /data/sbfspot/config/SBFspot.cfg:/opt/sbfspot/SBFspot.cfg --neet=host --privileged --name sbfspot-collector sbfspot-col -v -ad1 -am0 -ae0"
+  tags:
+    - run
+
+- name: run container sbfspot-collector-month
+  shell: " docker run -v /etc/localtime:/etc/localtime:ro -v /data/sbfspot:/var/smadata -v /data/sbfspot/config/SBFspot.cfg:/opt/sbfspot/SBFspot.cfg ---net=host --privileged --name sbfspot-collector-month sbfspot-col -v -sp0 -ad0 -am1 -ae1 -finq"
+  tags:
+    - run
+
+- name: Add to crontab
+  cron:
+    job: "docker start -a {{ item.name }} > /dev/null 2>&1"
+    name: '{{ item }}'
+    minute: '{{ item.minute }}'
+    hour:   '{{ item.hour }}'
+    state: present
+  with_items:
+    - { name: sbfspot-collector, minute: "*/5", hour: "5-23" }
+    - { name: sbfspot-collector-month, minute: "55", hour: "5" }
