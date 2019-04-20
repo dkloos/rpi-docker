@@ -1,12 +1,4 @@
 ---
-# tasks file for rpi-cam
-# General
-#- name: Upgrade all packages to the latest version
-#  apt:
-#    name: "*"
-#    state: latest
-#  become: yes
-
 - name: Install pyhton
   apt:
     name: "{{ item }}"
@@ -19,6 +11,7 @@
 
 # Installing Docker
 - name: adding docker group
+  become: yes
   group:
     name: docker
     state: present
@@ -32,12 +25,18 @@
     - docker
   become: yes
 
+- name: install docker
+  apt:
+    name: docker-ce=18.06.2~ce~3-0~raspbian
+  
+
 - name: Install docker-compose
   pip:
     name: "{{ item }}"
   become: yes
   with_items:
     - docker-py
-    - docker-compose
-- name: Build docker-compose
-  shell: docker-compose build
+    - docker-compose~=1.23.0
+
+#- name: Build docker-compose
+#  shell: docker-compose build

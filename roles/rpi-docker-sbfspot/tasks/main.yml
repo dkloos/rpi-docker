@@ -1,4 +1,12 @@
 ---
+- name: create user and group
+  become: yes
+  shell: "groupadd -g 2000 sbfspot && useradd -d /home/sbfspot -u 2000 -g 2000 -m -s /bin/bash sbfspot"
+  ignore_errors: yes
+
+  tags:
+   - run
+
 - name: copy dockerfiles Base Image
   copy:
     src: "{{ item.src }}"
@@ -67,11 +75,12 @@
   become: yes
   file:
     path: '{{ item }}'
-    owner: pi
+    owner: sbfspot
     group: sbfspot
     mode: 0775
     state: directory
   with_items:
+    - /data/sbfspot
     - /data/sbfspot/logs
     - /data/sbfspot/config
   tags:
@@ -87,6 +96,7 @@
     mode: 0775
   with_items:
     - { src: 'SBFspot.cfg', dest: '/data/sbfspot/config/'}
+    - { src: 'SBFspot-1.cfg', dest: '/data/sbfspot/config/'}
     - { src: 'SBFspotUpload.cfg', dest: '/data/sbfspot/config/'}
   tags:
     - run
@@ -97,29 +107,31 @@
     state: absent
   with_items:
     - sbfspot-collector
+    - sbfspot-collector-1
     - sbfspot-collector-month
+    - sbfspot-collector-1-month
     - sbfspot-uploader
   ignore_errors: yes
   tags:
     - run
 
 - name: run container sbfspot-collector
-  shell: " docker run -v /etc/localtime:/etc/localtime:ro -v /data/sbfspot:/var/smadata -v /data/sbfspot/config/SBFspot.cfg:/opt/sbfspot/SBFspot.cfg --neet=host --privileged --name sbfspot-collector sbfspot-col -v -ad1 -am0 -ae0"
+  shell: " docker run -v /etc/localtime:/etc/localtime:ro -v /data/sbfspot:/var/smadata -v {{ item.config }}:/opt/sbfspot/SBFspot.cfg --net=host --privileged --name {{ item.name }} sbfspot-col -v -ad1 -am0 -ae0"
+  with_items:
+    - { name: 'sbfspot-collector', config: '/data/sbfspot/config/SBFspot.cfg' }
+    - { name: 'sbfspot-collector-1', config: '/data/sbfspot/config/SBFspot-1.cfg' }
   tags:
     - run
 
 - name: run container sbfspot-collector-month
-  shell: " docker run -v /etc/localtime:/etc/localtime:ro -v /data/sbfspot:/var/smadata -v /data/sbfspot/config/SBFspot.cfg:/opt/sbfspot/SBFspot.cfg ---net=host --privileged --name sbfspot-collector-month sbfspot-col -v -sp0 -ad0 -am1 -ae1 -finq"
+  shell: " docker run -v /etc/localtime:/etc/localtime:ro -v /data/sbfspot:/var/smadata -v {{ item.config }}:/opt/sbfspot/SBFspot.cfg --net=host --privileged --name {{ item.name }}-month sbfspot-col -v -sp0 -ad0 -am1 -ae1 -finq"
+  with_items:
+    - { name: 'sbfspot-collector', config: '/data/sbfspot/config/SBFspot.cfg' }
+    - { name: 'sbfspot-collector-1', config: '/data/sbfspot/config/SBFspot-1.cfg' }
   tags:
     - run
 
-- name: Add to crontab
-  cron:
-    job: "docker start -a {{ item.name }} > /dev/null 2>&1"
-    name: '{{ item }}'
-    minute: '{{ item.minute }}'
-    hour:   '{{ item.hour }}'
-    state: present
-  with_items:
-    - { name: sbfspot-collector, minute: "*/5", hour: "5-23" }
-    - { name: sbfspot-collector-month, minute: "55", hour: "5" }
+- name: run container sbfspot-uploader
+  shell: "docker run -dt --restart always -v /etc/localtime:/etc/localtime:ro -v /data/sbfspot:/var/smadata -v /data/sbfspot/config/SBFspotUpload.cfg:/opt/sbfspot/SBFspotUpload.cfg --name sbfspot-uploader sbfspot-upl"
+  tags:
+    - run
