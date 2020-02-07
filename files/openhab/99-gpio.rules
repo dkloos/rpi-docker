@@ -1,0 +1,5 @@
+SUBSYSTEM=="gpio", ACTION=="add", RUN="/bin/sh -c '\
+        chown -R root:gpio /sys/class/gpio && chmod -R 770 /sys/class/gpio; \
+        chown -R root:gpio /sys$DEVPATH && chmod -R 770 /sys$DEVPATH \
+        chown -R root:gpio /sys/devices/platform/gpio*.* \
+'"

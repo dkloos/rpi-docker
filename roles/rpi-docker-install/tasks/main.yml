@@ -7,9 +7,14 @@
   with_items:
     - python
     - python-pip
-
+    - libffi-dev
+    - libssl-dev
 
 # Installing Docker
+- name: get docker over curl
+  become: yes
+  shell: curl -sSL https://get.docker.com | sh
+
 - name: adding docker group
   become: yes
   group:
@@ -25,18 +30,16 @@
     - docker
   become: yes
 
-- name: install docker
+- name: install pyhton-backports
   apt:
-    name: docker-ce=18.06.2~ce~3-0~raspbian
+    name: python-backports.ssl-match-hostname
   
 
-- name: Install docker-compose
+- name: Install docker
   pip:
     name: "{{ item }}"
   become: yes
   with_items:
     - docker-py
-    - docker-compose~=1.23.0
+    - docker-compose
 
-#- name: Build docker-compose
-#  shell: docker-compose build

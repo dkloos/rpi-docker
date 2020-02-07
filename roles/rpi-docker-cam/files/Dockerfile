@@ -1,7 +1,7 @@
-FROM balenalib/rpi-raspbian:jessie
+FROM balenalib/rpi-raspbian:buster
 
 MAINTAINER "DK"
-
+RUN usermod www-data -s /bin/bash
 RUN mkdir -p /rpi-cam-web && \
      mkdir -p /opt/vc/bin && \
     mkdir -p /run/php/ && \
@@ -9,13 +9,12 @@ RUN mkdir -p /rpi-cam-web && \
 WORKDIR /rpi-cam-web
 
 # Adding php 7 repo
-RUN echo "deb http://mirrordirector.raspbian.org/raspbian/ stretch main contrib non-free rpi" >> /etc/apt/sources.list
+RUN echo "deb http://mirrordirector.raspbian.org/raspbian/ buster main contrib non-free rpi" >> /etc/apt/sources.list
 RUN echo "Package: *\nPin: release n=jessie\nPin-Priority: 600" > /etc/apt/preferences
 
 # installing and refreshing of packages
 RUN apt-get update -y && \
-    apt-get install -y git apt-utils libraspberrypi0 && \
-    apt-get install -y -t stretch php7.0-cli nginx php7.0-fpm php7.0-cli php7.0-common php7.0-apcu apache2-utils gpac motion zip libav-tools gstreamer1.0
+    apt install git
 
 #configure lib
 RUN echo /opt/vc/lib > /etc/ld.so.conf \

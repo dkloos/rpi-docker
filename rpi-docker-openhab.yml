@@ -1,0 +1,50 @@
+---
+- hosts: all
+#  vars:
+  tasks:
+  - name: create group
+    become: yes
+    group:
+      gid: 9001
+      name: openhab
+      state: present
+
+  - name: create user
+    become: yes
+    user:
+      name: openhab
+      uid: 9001
+      shell: /sbin/nologin
+      system: yes
+      group: openhab
+  - name: ensure openhab is up
+    tags: openhab
+    docker_container:
+      name: openhab
+      restart_policy: always
+      image: openhab/openhab
+      #user: 9001:9001
+      privileged: yes
+      state: started
+      detach: yes
+      interactive: yes
+      tty: yes
+      ports:
+        - 8080:8080
+        - 8101:8101
+        - 5007:5007
+      volumes:
+        - /etc/localtime:/etc/localtime:ro
+        - /etc/timezone:/etc/timezone:ro
+        - /opt/openhab/addons:/openhab/addons
+        - /opt/openhab/conf:/openhab/conf
+        - /opt/openhab/userdata:/openhab/userdata
+        - /sys:/sys
+      keep_volumes: yes
+      hostname: openhab.localnet
+      memory: 512m
+      pull: true
+      restart_policy: unless-stopped
+      env:
+        EXTRA_JAVA_OPTS="-Duser.timezone=Europe/Berlin"
+

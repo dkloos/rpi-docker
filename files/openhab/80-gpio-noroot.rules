@@ -1,0 +1,12 @@
+# /etc/udev/rules.d/80-gpio-noroot.rules
+# Zugriff auf GPIO ohne root-Rechte ermoeglichen
+#
+# Gruppe aendern
+SUBSYSTEM=="gpio", RUN+="/bin/chown -R root.gpio /sys/class/gpio"
+SUBSYSTEM=="gpio", RUN+="/bin/chown -R root.gpio /sys/devices/virtual/gpio"
+# Sticky-Bit setzen
+SUBSYSTEM=="gpio", RUN+="/bin/chmod g+s /sys/class/gpio"
+SUBSYSTEM=="gpio", RUN+="/bin/chmod g+s /sys/devices/virtual/gpio"
+# Zugriffsrechte setzen
+SUBSYSTEM=="gpio", RUN+="/bin/chmod -R ug+rw /sys/class/gpio"
+SUBSYSTEM=="gpio", RUN+="/bin/chmod -R ug+rw /sys/devices/virtual/gpio"

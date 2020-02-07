@@ -1,0 +1,12 @@
+sitemap garage label="Garage" 
+{
+       Switch item=LED
+ 
+       Switch item=Relay1
+       Switch item=Relay2
+       Switch item=Relay3
+       Switch item=Relay4
+ 
+       Text item=TorZu
+       Text item=TorAuf
+}

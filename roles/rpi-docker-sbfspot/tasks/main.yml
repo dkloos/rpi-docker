@@ -130,8 +130,22 @@
     - { name: 'sbfspot-collector-1', config: '/data/sbfspot/config/SBFspot-1.cfg' }
   tags:
     - run
+  ignore_errors: yes
 
 - name: run container sbfspot-uploader
   shell: "docker run -dt --restart always -v /etc/localtime:/etc/localtime:ro -v /data/sbfspot:/var/smadata -v /data/sbfspot/config/SBFspotUpload.cfg:/opt/sbfspot/SBFspotUpload.cfg --name sbfspot-uploader sbfspot-upl"
   tags:
     - run
+
+
+- name: adding crontab entry for sbfspot-collector
+  become: true
+  lineinfile:
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.line }}"
+    path: /etc/crontab
+ */5 5-23 * * * docker start -a sbfspot-collector > /dev/null 2>&1";
+*/5 5-23 * * * docker start -a sbfspot-collector-1 > /dev/null 2>&1
+55 05 * * * docker start -a sbfspot-collector-1-month > /dev/null 2>&1
+55 05 * * * docker start -a sbfspot-collector-month > /dev/null 2>&1
+

@@ -2,7 +2,7 @@
 cp RPi_Cam_Web_Interface/bin/raspimjpeg /usr/local/bin/
 chmod 755 /usr/local/bin/raspimjpeg
 
-service nginx restart
+sudo service nginx restart
 RPi_Cam_Web_Interface/start.sh
 
 # e.g. php5-fpm -F

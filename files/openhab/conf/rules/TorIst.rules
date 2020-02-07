@@ -1,0 +1,65 @@
+rule "Tor Status erfassen"
+when
+  Item TorUntenSensor changed or
+  Item TorObenSensor changed 
+then
+  if (TorUntenSensor.state == OPEN && TorObenSensor.state == CLOSED) {
+    TorIst.sendCommand(2)
+    logInfo("Tor.rules", "Garagentor ist oben")
+  }
+  if (TorUntenSensor.state == CLOSED && TorObenSensor.state == OPEN) {
+    TorIst.sendCommand(0)
+    logInfo("Tor.rules", "Garagentor ist unten")
+  }
+  if (TorUntenSensor.state == OPEN && TorObenSensor.state == OPEN) {
+    TorIst.sendCommand(1)
+    logInfo("Tor.rules", "Garagentor ist mittig")
+  }
+
+end
+
+
+rule "Garagentor Timer wenn Tor offen"
+when
+  Item TorUntenSensor changed from CLOSED to OPEN 
+then
+  if (TimerAktiviert.state == ON) {
+    logInfo("garage.rules", "Garagentor Timer gestartet")
+    TorTimer.sendCommand(ON)
+  } else {
+    logInfo("garage.rules", "Garagentor Timer is deaktiviert")
+  }
+
+end
+
+rule "Garagentor Timer abgelaufen"
+when
+  Item TorTimer changed to OFF
+then
+  logInfo("garage.rules", "Garagntor Timer abgelaufen! Schließe Tor!")
+  if ( TorUntenSensor.state == OPEN ) {
+//  sendNotification("Garagentor noch offen!")
+    if ( Relay1.state == OFF) {
+      Relay1.sendCommand(ON)
+      logInfo("garage.rules", "Garagentor schließt!")
+    } else {
+      Relay1.sendCommand(OFF)
+      logInfo("garage.rules", "Garagentor schließt!")
+    }
+      
+  }
+end
+
+
+rule "Garagentor Timer aktivieren / deaktivieren"
+when
+  Item TimerButton changed from CLOSED to OPEN
+then 
+  if ( TimerAktiviert.state == OFF ) {
+    TimerAktiviert.sendCommand(ON)
+    logInfo("Tor.rules", "Timer aktiviert")
+  } else { 
+    TimerAktiviert.sendCommand(OFF)
+    logInfo("Tor.rules", "Timer deaktiviert")
+  }
+end

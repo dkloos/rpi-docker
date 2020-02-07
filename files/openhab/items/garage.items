@@ -1,0 +1,14 @@
+Switch LED "LED" { gpio="pin:14" }
+
+//Relays
+Switch Relay1 "Schalter Auf-Zu" { gpio="pin:26 activelow:yes initialValue:low" }
+Switch Relay2 "Relay 2" { gpio="pin:19 activelow:yes initialValue:low" }
+Switch Relay3 "Relay 3" { gpio="pin:13 activelow:yes"}
+Switch Relay4 "Relay 4" { gpio="pin:6 activelow:yes"}
+
+Contact TorZu "Tor geschlossen [%s]" { gpio="pin:21 debounce:10 activelow:yes" }
+Contact TorAuf "Tor offen [%s]" { gpio="pin:20 debounce:10 activelow:yes" }
+Contact TimerAktiviert "Automatisches Schließen aktiviert [%s]" { gpio="pin:24 activelow:yes" }
+
+//Timer switch
+Switch TorTimer "Tor offen Timer" (gGarage) {expire="5m,command=OFF"}

@@ -31,8 +31,9 @@
     debug: yes
 
 - name: create nfs mount
-  shell: docker volume create --driver local --opt type=nfs --opt o=addr=10.10.10.60,rw --opt device=:/Recordings nfscam
+  shell: docker volume create --opt type='nfs4' --opt o=addr=10.10.10.60,rw --opt device=:/Recordings nfscam
 - name: Docker Run container
+  become: yes
   shell: docker run -d --name=rpi-cam -p=80:80/tcp --mount source=nfscam,destination=/data --device=/dev/vchiq --device=/dev/vcsm rpi-cam-web --restart always
   args:
     chdir: ~/rpicam-docker
