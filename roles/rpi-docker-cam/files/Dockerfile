@@ -14,7 +14,8 @@ RUN echo "Package: *\nPin: release n=jessie\nPin-Priority: 600" > /etc/apt/prefe
 
 # installing and refreshing of packages
 RUN apt-get update -y && \
-    apt install git
+    apt install vim git libraspberrypi0 libraspberrypi-dev
+
 
 #configure lib
 RUN echo /opt/vc/lib > /etc/ld.so.conf \
