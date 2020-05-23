@@ -21,9 +21,11 @@ end
 
 rule "Garagentor Timer wenn Tor offen"
 when
-  Item TorUntenSensor changed from CLOSED to OPEN 
+  Item TorUntenSensor changed from CLOSED to OPEN or
+  Item TorObenSensor changed from OPEN to CLOSED or
+  Item TimerButton changed
 then
-  if (TimerAktiviert.state == ON) {
+  if (TimerButton.state == ON) {
     logInfo("garage.rules", "Garagentor Timer gestartet")
     TorTimer.sendCommand(ON)
   } else {
@@ -38,28 +40,23 @@ when
 then
   logInfo("garage.rules", "Garagntor Timer abgelaufen! Schließe Tor!")
   if ( TorUntenSensor.state == OPEN ) {
-//  sendNotification("Garagentor noch offen!")
-    if ( Relay1.state == OFF) {
-      Relay1.sendCommand(ON)
-      logInfo("garage.rules", "Garagentor schließt!")
-    } else {
-      Relay1.sendCommand(OFF)
-      logInfo("garage.rules", "Garagentor schließt!")
-    }
-      
-  }
+    Relay1.sendCommand(ON)
+    logInfo("garage.rules", "Garagentor schließt!")
+  } else {
+    logInfo("garage.rules", "Garagentor bereits zu!")
+  }  
 end
 
 
-rule "Garagentor Timer aktivieren / deaktivieren"
+rule "LED auf Board für Timer status schalten wenn Button gedrückt wird"
 when
-  Item TimerButton changed from CLOSED to OPEN
+  Item TimerButton changed
 then 
-  if ( TimerAktiviert.state == OFF ) {
+  if ( TimerButton.state == ON ) {
     TimerAktiviert.sendCommand(ON)
     logInfo("Tor.rules", "Timer aktiviert")
   } else { 
-    TimerAktiviert.sendCommand(OFF)
+    TimerButton.sendCommand(OFF)
     logInfo("Tor.rules", "Timer deaktiviert")
   }
 end
