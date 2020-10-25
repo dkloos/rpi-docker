@@ -1,21 +1,30 @@
 // Tor zustand wird über rules gestzt, basierent auf den zustand beider Türkontakte
 String TorIst "Torposition [MAP(TorStatus.map):%s]"
 
-//Relays zum schalten des Tor Tasters
-Switch Relay1 "Tor Auf - Zu" { gpio="pin:26 activelow:yes initialValue:low" }
-Switch Relay2 "Relay 2" { gpio="pin:19 activelow:yes initialValue:low" }
-Switch Relay3 "Relay 3" { gpio="pin:13 activelow:yes initialValue:low"}
-Switch Relay4 "Relay 4" { gpio="pin:6 activelow:yes initialValue:low"}
+//Relays 
+Switch Relay1 "Tor Auf - Zu" { gpio="pin:26 activelow:yes initialValue:low", expire="1s,command=OFF" }
+//Switch Relay2 "Relay 2" { gpio="pin:19 activelow:yes initialValue:low" }
+//Switch Relay3 "Relay 3" { gpio="pin:13 activelow:yes initialValue:low" }
+//Switch Relay4 "Relay 4" { gpio="pin:6 activelow:yes initialValue:low" }
 
 // Tor Kontakte
-Contact TorUntenSensor "Tor Sensor unten [%s]" { gpio="pin:17 debounce:20 activelow:yes" }
-Contact TorObenSensor "Tor Sensor oben [%s]" { gpio="pin:27 debounce:20 activelow:yes" }
+Contact TorUntenSensor "Tor Sensor unten [%s]" { gpio="pin:12 debounce:20 activelow:yes" }
+Contact TorObenSensor "Tor Sensor oben [%s]" { gpio="pin:13 debounce:20 activelow:yes" }
 
 // Timer wird über Rules aktiviert um Tor nach XM automatisch zu schließen (Wenn TorUntenSensor == OPEN)
-Switch TorTimer "Tor offen Timer" (gGarage) {expire="15m,command=OFF"}
-
-// LED zum anzeigen ob Timer aktiviert / deaktivert ist
-Switch TimerAktiviert "Automatisches Schließen aktiviert [%s]" { gpio="pin:24 activelow:no initialValue:high" }
+Switch TorTimer "Tor offen Timer" (gGarage) { expire="20m,command=OFF" }
 
 // Button zum aktivieren / deaktivieren des Timer
-Contact TimerButton "Automatisches schließen [%s]" { gpio="pin:23 activelow:yes initialValue:low" }
+//Contact TimerButton "Automatisches schließen [%s]" { gpio="pin:24 activelow:yes initialValue:low" }
+Switch TimerButton "Automatisches schließen [%s]" { gpio="pin:24 activelow:yes initialValue:low" }
+
+//LED's
+// LED zum anzeigen ob Timer aktiviert / deaktivert ist
+Switch TimerAktiviert "Automatisches Schließen aktiviert [%s]" { gpio="pin:7 activelow:no initialValue:high" }
+
+// LED zum anzeigen von Torstellen / Contact
+Switch TorIstUnten "Tor postion Unten [%s]" { gpio="pin:15 activelow:no initialValue:low"}
+Switch TorIstOben "Tor postion Unten [%s]" { gpio="pin:21 activelow:no initialValue:low"}
+
+//Item to check if System is rebooted and wait until Items are initiated.
+Switch SystemStarting

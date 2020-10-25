@@ -122,6 +122,7 @@
     - { name: 'sbfspot-collector-1', config: '/data/sbfspot/config/SBFspot-1.cfg' }
   tags:
     - run
+  ignore_errors: yes
 
 - name: run container sbfspot-collector-month
   shell: " docker run -v /etc/localtime:/etc/localtime:ro -v /data/sbfspot:/var/smadata -v {{ item.config }}:/opt/sbfspot/SBFspot.cfg --net=host --privileged --name {{ item.name }}-month sbfspot-col -v -sp0 -ad0 -am1 -ae1 -finq"

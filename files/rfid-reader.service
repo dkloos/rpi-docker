@@ -1,0 +1,14 @@
+[Unit]
+Description= RFID-Reader Service
+After=network.target iptables.service firewalld.service
+
+[Service]
+User=pi
+Group=pi
+Restart=always
+WorkingDirectory=/data
+ExecStart=python3 /data/daemon_rfid_reader.py
+
+[Install]
+WantedBy=multi-user.target
+Alias=rfid
